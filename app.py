@@ -19,11 +19,10 @@ st.write(data.head())
 st.write("Missing values in each column:")
 st.write(data.isnull().sum())
 
-# Handle missing values by imputing with mean
-if data.isnull().values.any():
-    data = data.fillna(data.mean())
-    st.warning("Data contained missing values. They have been imputed with column means.")
-    
+# Handle missing values by imputing with mean for numeric columns only
+numeric_cols = data.select_dtypes(include=[np.number]).columns
+data[numeric_cols] = data[numeric_cols].fillna(data[numeric_cols].mean())
+
 # Recheck missing values after imputation
 st.write("Missing values after imputation:")
 st.write(data.isnull().sum())
