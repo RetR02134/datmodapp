@@ -11,10 +11,22 @@ import matplotlib.pyplot as plt
 # Load your data
 data = pd.read_csv('final_data.csv')  # Make sure to upload your dataset
 
-# Check for missing values and handle them by imputing with mean
+# Inspect the first few rows of the dataset
+st.write("First few rows of the dataset:")
+st.write(data.head())
+
+# Log missing values
+st.write("Missing values in each column:")
+st.write(data.isnull().sum())
+
+# Handle missing values by imputing with mean
 if data.isnull().values.any():
     data = data.fillna(data.mean())
     st.warning("Data contained missing values. They have been imputed with column means.")
+    
+# Recheck missing values after imputation
+st.write("Missing values after imputation:")
+st.write(data.isnull().sum())
 
 feature_columns = [
     'RoundNumber', 'eventYear', 'Stint', 'meanAirTemp', 'meanTrackTemp', 
