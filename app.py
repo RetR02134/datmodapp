@@ -11,6 +11,11 @@ import matplotlib.pyplot as plt
 # Load your data
 data = pd.read_csv('final_data.csv')  # Make sure to upload your dataset
 
+# Check for missing values
+if data.isnull().values.any():
+    st.error("Data contains missing values. Please clean the data and try again.")
+    st.stop()
+
 feature_columns = [
     'RoundNumber', 'eventYear', 'Stint', 'meanAirTemp', 'meanTrackTemp', 
     'meanHumid', 'GridPosition', 'raceStintsNums', 'TyreAge', 
@@ -40,13 +45,18 @@ X_test_class_scaled = scaler.transform(X_test_class)
 # Train and evaluate KNeighborsClassifier
 knn_classifier = KNeighborsClassifier()
 param_grid_class = {'n_neighbors': list(range(1, 31))}
-grid_search_class = GridSearchCV(knn_classifier, param_grid_class, cv=5, scoring='accuracy')
-grid_search_class.fit(X_train_class_scaled, y_train_class)
-optimal_k_class = grid_search_class.best_params_['n_neighbors']
-st.write(f"Optimal k value for classification: {optimal_k_class}")
 
-knn_classifier = KNeighborsClassifier(n_neighbors=optimal_k_class)
-knn_classifier.fit(X_train_class_scaled, y_train_class)
+try:
+    grid_search_class = GridSearchCV(knn_classifier, param_grid_class, cv=5, scoring='accuracy')
+    grid_search_class.fit(X_train_class_scaled, y_train_class)
+    optimal_k_class = grid_search_class.best_params_['n_neighbors']
+    st.write(f"Optimal k value for classification: {optimal_k_class}")
+
+    knn_classifier = KNeighborsClassifier(n_neighbors=optimal_k_class)
+    knn_classifier.fit(X_train_class_scaled, y_train_class)
+except ValueError as e:
+    st.error(f"Grid search failed: {e}")
+    st.stop()
 
 # Train and evaluate RandomForestClassifier
 rf_class = RandomForestClassifier(n_estimators=100, random_state=42)
@@ -90,4 +100,3 @@ st.write('Bad Pit Stop' if prediction_knn[0] else 'Good Pit Stop')
 
 st.subheader('Prediction using Random Forest Classifier')
 st.write('Bad Pit Stop' if prediction_rf[0] else 'Good Pit Stop')
-
